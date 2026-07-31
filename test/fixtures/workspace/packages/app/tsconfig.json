@@ -1,0 +1,13 @@
+{
+  "compilerOptions": {
+    "composite": true,
+    "baseUrl": ".",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "paths": {
+      "@fixture/core": ["../core/src/index.ts"]
+    }
+  },
+  "include": ["src/**/*.ts"],
+  "references": [{ "path": "../core" }]
+}

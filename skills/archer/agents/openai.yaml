@@ -1,0 +1,4 @@
+interface:
+  display_name: 'Archer architecture tests'
+  short_description: 'Add and enforce TypeScript architecture rules'
+  default_prompt: 'Use $archer to add architecture tests to this TypeScript project and fix any reported violations.'

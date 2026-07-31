@@ -2,11 +2,13 @@ import { createRequire } from 'node:module'
 import path from 'node:path'
 import type { TestOptions } from 'node:test'
 
-import { ArchitectureError } from './format.js'
-import { ArchitectureSuite } from './suite.js'
-import type { ArcherOptions } from './types.js'
+import type { ArcherOptions } from '../../core/types.js'
+import { ArchitectureSuite } from '../../engine/suite.js'
+import { ArchitectureError } from '../../reporting/format.js'
 
-const { test } = createRequire(path.join(process.cwd(), '__archer.cjs'))('node:test') as typeof import('node:test')
+const { test } = createRequire(path.join(process.cwd(), '__archer.cjs'))(
+  'node:test',
+) as typeof import('node:test')
 
 export interface NodeArchTestOptions extends ArcherOptions {
   readonly test?: TestOptions
@@ -29,4 +31,4 @@ export function arch(name: string, options: NodeArchTestOptions = {}): Architect
   return suite
 }
 
-export type { ArcherOptions, Selector } from './types.js'
+export type { ArcherOptions, Selector } from '../../core/types.js'

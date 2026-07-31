@@ -1,6 +1,6 @@
 import { fileURLToPath } from 'node:url'
 
-import { arch } from '../src/vitest.js'
+import { arch } from '../src/adapters/vitest/index.js'
 
 const fixtureRoot = fileURLToPath(new URL('./fixtures/project', import.meta.url))
 

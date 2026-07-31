@@ -1,0 +1,35 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "categories": {
+    "correctness": "error",
+    "perf": "error",
+    "suspicious": "error"
+  },
+  "env": {
+    "es2023": true,
+    "node": true
+  },
+  "ignorePatterns": ["dist/**", "test/fixtures/**"],
+  "options": {
+    "denyWarnings": true,
+    "reportUnusedDisableDirectives": "error"
+  },
+  "overrides": [
+    {
+      "env": {
+        "vitest": true
+      },
+      "files": ["test/**/*.test.ts", "vitest.config.ts"]
+    },
+    {
+      "env": {
+        "commonjs": true,
+        "jest": true
+      },
+      "files": ["test/runners/*.cjs"]
+    }
+  ],
+  "rules": {
+    "eqeqeq": "error"
+  }
+}

@@ -1,8 +1,8 @@
 import { test } from '@jest/globals'
 
-import { ArchitectureError } from './format.js'
-import { ArchitectureSuite } from './suite.js'
-import type { ArcherOptions } from './types.js'
+import type { ArcherOptions } from '../../core/types.js'
+import { ArchitectureSuite } from '../../engine/suite.js'
+import { ArchitectureError } from '../../reporting/format.js'
 
 export interface JestArchTestOptions extends ArcherOptions {
   /** Per-test timeout in milliseconds. */
@@ -16,14 +16,18 @@ export function arch(name: string, options: JestArchTestOptions = {}): Architect
   const { timeout, ...archerOptions } = options
   const suite = new ArchitectureSuite(archerOptions)
 
-  test(name, async () => {
-    const result = await suite.check()
-    if (!result.ok) {
-      throw new ArchitectureError(result)
-    }
-  }, timeout)
+  test(
+    name,
+    async () => {
+      const result = await suite.check()
+      if (!result.ok) {
+        throw new ArchitectureError(result)
+      }
+    },
+    timeout,
+  )
 
   return suite
 }
 
-export type { ArcherOptions, Selector } from './types.js'
+export type { ArcherOptions, Selector } from '../../core/types.js'

@@ -43,5 +43,7 @@ export function matchesSelector(candidate: string, selector: Selector): boolean 
 }
 
 export function formatSelector(selector: Selector): string {
-  return selectorValues(selector).map((value) => `'${value}'`).join(', ')
+  return selectorValues(selector)
+    .map((value) => `'${value}'`)
+    .join(', ')
 }

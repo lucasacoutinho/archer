@@ -3,7 +3,10 @@ import { fileURLToPath } from 'node:url'
 
 import { arch } from '../../dist/node.js'
 
-const fixtureRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../fixtures/project')
+const fixtureRoot = path.resolve(
+  path.dirname(fileURLToPath(import.meta.url)),
+  '../fixtures/project',
+)
 
 arch('the domain does not import infrastructure', { root: fixtureRoot })
   .expect('src/domain/**')

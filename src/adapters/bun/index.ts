@@ -1,8 +1,8 @@
 import { test } from 'bun:test'
 
-import { ArchitectureError } from './format.js'
-import { ArchitectureSuite } from './suite.js'
-import type { ArcherOptions } from './types.js'
+import type { ArcherOptions } from '../../core/types.js'
+import { ArchitectureSuite } from '../../engine/suite.js'
+import { ArchitectureError } from '../../reporting/format.js'
 
 export interface BunArchTestOptions extends ArcherOptions {
   /** Per-test timeout in milliseconds. */
@@ -31,4 +31,4 @@ export function arch(name: string, options: BunArchTestOptions = {}): Architectu
   return suite
 }
 
-export type { ArcherOptions, Selector } from './types.js'
+export type { ArcherOptions, Selector } from '../../core/types.js'
