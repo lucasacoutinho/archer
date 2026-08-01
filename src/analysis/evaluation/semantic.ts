@@ -8,6 +8,7 @@ import type {
   ExportRule,
   GlobalUseRule,
   HeritageRule,
+  ImportedSymbolUseRule,
   LineCountRule,
   MethodRule,
   NameRule,
@@ -244,6 +245,46 @@ export function evaluateGlobalUseRule(
     return rule.globals
       .filter((name) => !present.has(name))
       .map((name) => makeViolation(rule, `Does not call '${name}()'.`, subject))
+  })
+}
+
+function matchesImportedFrom(actual: string | undefined, expected: string): boolean {
+  return actual === expected || actual?.startsWith(`${expected}/`) === true
+}
+
+export function evaluateImportedSymbolUseRule(
+  rule: ImportedSymbolUseRule,
+  subjects: readonly SourceModule[],
+): readonly ArchitectureViolation[] {
+  return subjects.flatMap((subject) => {
+    const matching = subject.uses.filter(
+      (use) =>
+        use.kind === 'call' &&
+        matchesImportedFrom(use.importedFrom, rule.importedFrom) &&
+        use.importedName !== undefined &&
+        rule.symbols.includes(use.importedName),
+    )
+    if (rule.negated) {
+      return matching.map((use) =>
+        makeViolation(
+          rule,
+          `Calls '${use.name}()' imported as '${use.importedName}' from '${use.importedFrom}'.`,
+          subject,
+          undefined,
+          use,
+        ),
+      )
+    }
+    const present = new Set(matching.map((use) => use.importedName))
+    return rule.symbols
+      .filter((symbol) => !present.has(symbol))
+      .map((symbol) =>
+        makeViolation(
+          rule,
+          `Does not call '${symbol}()' imported from '${rule.importedFrom}'.`,
+          subject,
+        ),
+      )
   })
 }
 

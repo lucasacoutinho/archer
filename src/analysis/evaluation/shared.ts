@@ -60,6 +60,8 @@ export function describeRule(rule: ArchitectureRule): string {
       return `${subject} must use strict equality`
     case 'use-globals':
       return `${subject} must${rule.negated ? ' not' : ''} use globals ${rule.globals.join(', ')}`
+    case 'use-imported-symbols':
+      return `${subject} must${rule.negated ? ' not' : ''} call ${rule.symbols.join(', ')} from '${rule.importedFrom}'`
     case 'have-methods':
       return `${subject} must${rule.negated ? ' not' : ''} have methods ${rule.names.join(', ')}`
     case 'have-visible-methods':

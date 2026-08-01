@@ -74,7 +74,27 @@ import { arch } from '@usescherie/archer/node'
 Jest and Bun accept `timeout` as an Archer adapter option. The Node adapter
 accepts built-in `node:test` options under `test`.
 
-## Matcher plugins
+## Vitest config plugin
+
+Vitest can run Archer once, before it starts collecting tests. The plugin loads
+`archer.config.*` from the Vitest project root by default:
+
+```ts
+// vitest.config.ts
+import { archer } from '@usescherie/archer/vitest'
+import { defineConfig } from 'vitest/config'
+
+export default defineConfig({
+  plugins: [archer()],
+})
+```
+
+Pass `config`, `reporter`, `baseline`, `output`, or `failOnWarnings` to
+`archer()` when the defaults are not enough. This is a configuration plugin,
+so it performs one architecture check for the Vitest project instead of
+registering a test in every worker.
+
+## Matcher setup modules
 
 Vitest, Jest, and Bun can also install Archer as an `expect` plugin. This keeps
 the runner integration in its normal setup hook and lets architecture tests use
@@ -233,6 +253,7 @@ archer.expect('src/models/**').toBeTypes()
 archer.expect('src/index.ts').toOnlyExport('Client', 'ClientOptions')
 archer.expect('src/**').toUseStrictEquality()
 archer.expect('src/**').not.toUseGlobals('eval', 'Function')
+archer.expect('src/**').not.toUseImportedSymbols('react', 'useEffect')
 archer.expect('src/**').toHaveResolvableDependencies()
 archer.expect('src/index.ts').toBePublicApi()
 ```
@@ -242,6 +263,38 @@ Naming and size rules remain available through `toHavePrefix`,
 
 These are static checks. Runtime dependency injection, reflection-generated
 exports, and targets hidden behind computed imports cannot be inferred.
+
+### Imported API policies
+
+`toUseImportedSymbols()` matches calls by their original module and export. It
+recognizes named-import aliases, namespace calls, default-import property
+calls, element access with a literal name, and CommonJS destructuring.
+
+That keeps framework names out of Archer's rule engine. A React policy can be
+written from generic rules:
+
+```ts
+archer
+  .expect('src/frontend/components/**/*.{ts,tsx}')
+  .not.toBeClasses()
+  .and.not.toUseImportedSymbols('react', 'useEffect', 'useContext')
+
+archer.expect('src/frontend/state/**').toDependOn('npm:zustand')
+```
+
+The same call rule can reject Vue `provide` and `inject`, or Svelte
+`setContext` and `getContext`, in JavaScript and TypeScript modules:
+
+```ts
+archer.expect('src/vue/**').not.toUseImportedSymbols('vue', 'provide', 'inject')
+archer.expect('src/svelte/**').not.toUseImportedSymbols('svelte', 'setContext', 'getContext')
+```
+
+Vue and Svelte single-file components need their compiler parsers because a
+`.vue` or `.svelte` file is not a TypeScript source file. Archer does not parse
+those formats as TypeScript or claim that their template dependencies were
+checked. They belong in source-analyzer integrations, while the core rules
+remain framework-neutral.
 
 ## Rule metadata, custom rules, and presets
 
@@ -375,3 +428,14 @@ npm run check
 npm run check:package
 npm run release:check
 ```
+
+To cross-test the adjacent tiacore checkout, build tiacore once and run:
+
+```sh
+npm run test:tia
+npm run test:tia:verify
+```
+
+The scripts prefer an installed `@usescherie/tiacore` package and otherwise
+use `../tiacore`. Set `TIACORE_VITEST_ENTRY` or `TIACORE_CLI` for a checkout in
+another location.

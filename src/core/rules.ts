@@ -90,6 +90,13 @@ export interface GlobalUseRule extends RuleBase {
   readonly negated: boolean
 }
 
+export interface ImportedSymbolUseRule extends RuleBase {
+  readonly importedFrom: string
+  readonly kind: 'use-imported-symbols'
+  readonly negated: boolean
+  readonly symbols: readonly string[]
+}
+
 export interface MethodRule extends RuleBase {
   readonly kind: 'have-methods' | 'have-visible-methods' | 'only-public-methods'
   readonly names: readonly string[]
@@ -122,6 +129,7 @@ export type ArchitectureRule =
   | ExportRule
   | GlobalUseRule
   | HeritageRule
+  | ImportedSymbolUseRule
   | LineCountRule
   | MethodRule
   | NameRule

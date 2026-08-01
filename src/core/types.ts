@@ -52,6 +52,8 @@ export interface DeclarationInfo extends SourceLocation {
 
 export interface SourceUse extends SourceLocation {
   readonly kind: 'call' | 'loose-equality'
+  readonly importedFrom?: string
+  readonly importedName?: string
   readonly name: string
 }
 

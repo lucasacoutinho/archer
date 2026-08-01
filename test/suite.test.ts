@@ -104,7 +104,7 @@ describe('architecture rules', () => {
     const archer = createArcher({ root: fixtureRoot })
     archer
       .expect('src/infrastructure/dependencies.ts')
-      .toOnlyUse(['node:fs', 'npm:picomatch', 'src/domain/**', 'unresolved:*'])
+      .toOnlyUse(['node:fs', 'node:test', 'npm:picomatch', 'src/domain/**', 'unresolved:*'])
 
     expect((await archer.check()).ok).toBe(true)
   })

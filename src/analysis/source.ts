@@ -12,6 +12,12 @@ import type {
   SourceUse,
 } from '../core/types.js'
 
+interface ImportedBinding {
+  readonly importedFrom: string
+  readonly importedName: string
+  readonly namespace: boolean
+}
+
 export interface ImportReference {
   readonly kind: DependencyKind
   readonly node: ts.StringLiteralLike
@@ -322,22 +328,142 @@ function collectDeclarations(
   })
 }
 
+function collectImportedBindings(sourceFile: ts.SourceFile): ReadonlyMap<string, ImportedBinding> {
+  const bindings = new Map<string, ImportedBinding>()
+
+  function add(
+    localName: string,
+    importedFrom: string,
+    importedName: string,
+    namespace: boolean,
+  ): void {
+    bindings.set(localName, { importedFrom, importedName, namespace })
+  }
+
+  for (const statement of sourceFile.statements) {
+    if (ts.isImportDeclaration(statement) && isStringLiteralLike(statement.moduleSpecifier)) {
+      const importedFrom = statement.moduleSpecifier.text
+      const clause = statement.importClause
+      if (clause?.name !== undefined) add(clause.name.text, importedFrom, 'default', true)
+      if (clause?.namedBindings !== undefined) {
+        if (ts.isNamespaceImport(clause.namedBindings)) {
+          add(clause.namedBindings.name.text, importedFrom, '*', true)
+        } else {
+          for (const element of clause.namedBindings.elements) {
+            add(
+              element.name.text,
+              importedFrom,
+              element.propertyName?.text ?? element.name.text,
+              false,
+            )
+          }
+        }
+      }
+      continue
+    }
+
+    if (
+      ts.isImportEqualsDeclaration(statement) &&
+      ts.isExternalModuleReference(statement.moduleReference) &&
+      isStringLiteralLike(statement.moduleReference.expression)
+    ) {
+      add(statement.name.text, statement.moduleReference.expression.text, '*', true)
+      continue
+    }
+
+    if (!ts.isVariableStatement(statement)) continue
+    for (const declaration of statement.declarationList.declarations) {
+      const initializer = declaration.initializer
+      if (
+        initializer === undefined ||
+        !ts.isCallExpression(initializer) ||
+        !ts.isIdentifier(initializer.expression) ||
+        initializer.expression.text !== 'require' ||
+        !isStringLiteralLike(initializer.arguments[0])
+      ) {
+        continue
+      }
+      const importedFrom = initializer.arguments[0].text
+      if (ts.isIdentifier(declaration.name)) {
+        add(declaration.name.text, importedFrom, '*', true)
+      } else if (ts.isObjectBindingPattern(declaration.name)) {
+        for (const element of declaration.name.elements) {
+          if (!ts.isIdentifier(element.name)) continue
+          const importedName = element.propertyName?.getText(sourceFile) ?? element.name.text
+          add(element.name.text, importedFrom, importedName, false)
+        }
+      }
+    }
+  }
+
+  return bindings
+}
+
+function importedCall(
+  expression: ts.LeftHandSideExpression,
+  bindings: ReadonlyMap<string, ImportedBinding>,
+): ImportedBinding | undefined {
+  if (ts.isIdentifier(expression)) return bindings.get(expression.text)
+  if (ts.isPropertyAccessExpression(expression) && ts.isIdentifier(expression.expression)) {
+    const namespace = bindings.get(expression.expression.text)
+    if (namespace?.namespace === true) {
+      return { ...namespace, importedName: expression.name.text, namespace: false }
+    }
+  }
+  if (
+    ts.isElementAccessExpression(expression) &&
+    ts.isIdentifier(expression.expression) &&
+    isStringLiteralLike(expression.argumentExpression)
+  ) {
+    const namespace = bindings.get(expression.expression.text)
+    if (namespace?.namespace === true) {
+      return {
+        ...namespace,
+        importedName: expression.argumentExpression.text,
+        namespace: false,
+      }
+    }
+  }
+  return undefined
+}
+
 function collectUses(sourceFile: ts.SourceFile, checker?: ts.TypeChecker): readonly SourceUse[] {
   const uses: SourceUse[] = []
+  const importedBindings = collectImportedBindings(sourceFile)
 
-  function add(node: ts.Node, kind: SourceUse['kind'], name: string): void {
+  function add(
+    node: ts.Node,
+    kind: SourceUse['kind'],
+    name: string,
+    imported?: ImportedBinding,
+  ): void {
     const position = sourceFile.getLineAndCharacterOfPosition(node.getStart(sourceFile))
-    uses.push({ column: position.character + 1, kind, line: position.line + 1, name })
+    uses.push({
+      column: position.character + 1,
+      ...(imported === undefined
+        ? {}
+        : { importedFrom: imported.importedFrom, importedName: imported.importedName }),
+      kind,
+      line: position.line + 1,
+      name,
+    })
   }
 
   function visit(node: ts.Node): void {
-    if (ts.isCallExpression(node) && ts.isIdentifier(node.expression)) {
-      const symbol = checker?.getSymbolAtLocation(node.expression)
-      const isGlobal =
-        checker === undefined ||
-        (symbol?.declarations?.some((declaration) => declaration.getSourceFile() !== sourceFile) ??
-          false)
-      if (isGlobal) add(node.expression, 'call', node.expression.text)
+    if (ts.isCallExpression(node)) {
+      const imported = importedCall(node.expression, importedBindings)
+      if (imported !== undefined) {
+        add(node.expression, 'call', node.expression.getText(sourceFile), imported)
+      } else if (ts.isIdentifier(node.expression)) {
+        const symbol = checker?.getSymbolAtLocation(node.expression)
+        const isGlobal =
+          checker === undefined ||
+          (symbol?.declarations?.some(
+            (declaration) => declaration.getSourceFile() !== sourceFile,
+          ) ??
+            false)
+        if (isGlobal) add(node.expression, 'call', node.expression.text)
+      }
     }
     if (
       ts.isBinaryExpression(node) &&

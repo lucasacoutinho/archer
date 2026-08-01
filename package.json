@@ -170,14 +170,17 @@
     "test": "vitest run",
     "test:adapters": "npm run build && npm run test:jest && npm run test:node && npm run test:bun && npm run test:cli && npm run test:dogfood",
     "test:bun": "bun test test/runners/bun-adapter.test.mjs",
-    "test:cli": "node dist/cli.js check --config test/fixtures/cli/archer.config.mjs --reporter agent",
+    "test:cli": "node --test test/runners/cli.test.mjs",
     "test:dogfood": "node dist/cli.js check --config archer.config.ts",
     "test:jest": "jest --runInBand --runTestsByPath test/runners/jest-adapter.test.cjs",
     "test:node": "node --test test/runners/node-adapter.test.mjs",
+    "test:tia": "vitest run --config vitest.tia.config.ts",
+    "test:tia:verify": "node config/run-tiacore.mjs verify --output .tia/verification.json -- npm run test:tia",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "chokidar": "^5.0.0",
+    "commander": "^14.0.3",
     "jiti": "^2.7.0",
     "picomatch": "^4.0.3",
     "tinyglobby": "^0.2.15"

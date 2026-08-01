@@ -8,6 +8,7 @@ export function configureArchitecture(archer: ArchitectureSuite): void {
   const layers = archer.layers({
     adapters: 'src/adapters/**',
     analysis: 'src/analysis/**',
+    application: 'src/application/**',
     cli: 'src/cli/**',
     config: 'src/config/**',
     core: 'src/core/**',
@@ -20,10 +21,11 @@ export function configureArchitecture(archer: ArchitectureSuite): void {
   layers.where('analysis').mayOnlyDependOn('core')
   layers.where('engine').mayOnlyDependOn('analysis', 'core')
   layers.where('reporting').mayOnlyDependOn('core')
+  layers.where('application').mayOnlyDependOn('analysis', 'config', 'core', 'engine', 'reporting')
   layers.where('testing').mayOnlyDependOn('core', 'reporting')
   layers.where('config').mayOnlyDependOn('core', 'engine', 'reporting')
-  layers.where('adapters').mayOnlyDependOn('core', 'engine', 'reporting', 'testing')
-  layers.where('cli').mayOnlyDependOn('analysis', 'config', 'engine', 'reporting')
+  layers.where('adapters').mayOnlyDependOn('application', 'core', 'engine', 'reporting', 'testing')
+  layers.where('cli').mayOnlyDependOn('analysis', 'application', 'config', 'engine', 'reporting')
   layers.toBeFreeOfCycles()
 
   archer
@@ -35,6 +37,7 @@ export function configureArchitecture(archer: ArchitectureSuite): void {
     .expect('src/adapters/**')
     .toOnlyDependOn([
       'src/adapters/**',
+      'src/application/**',
       'src/core/**',
       'src/engine/**',
       'src/reporting/**',

@@ -94,6 +94,7 @@ describe('analyze', () => {
     expect(dependencies).toEqual(
       expect.arrayContaining([
         expect.objectContaining({ kind: 'static', target: 'node:fs/promises' }),
+        expect.objectContaining({ kind: 'type', target: 'node:test' }),
         expect.objectContaining({ kind: 'type', target: 'src/domain/order.ts' }),
         expect.objectContaining({ kind: 'dynamic', target: 'npm:picomatch' }),
         expect.objectContaining({ kind: 'require', target: 'unresolved:./missing.cjs' }),

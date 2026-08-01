@@ -363,6 +363,22 @@ export class ArchExpectation {
     return this
   }
 
+  toUseImportedSymbols(importedFrom: string, ...symbols: readonly string[]): this {
+    if (importedFrom.trim() === '') {
+      throw new TypeError('toUseImportedSymbols() needs a module specifier.')
+    }
+    if (symbols.length === 0) {
+      throw new TypeError('toUseImportedSymbols() needs at least one imported symbol.')
+    }
+    this.addSimple({
+      importedFrom,
+      kind: 'use-imported-symbols',
+      negated: this.consumeNegation(),
+      symbols,
+    })
+    return this
+  }
+
   toHaveMethods(...names: readonly string[]): this {
     if (names.length === 0) {
       throw new TypeError('toHaveMethods() needs at least one method name.')

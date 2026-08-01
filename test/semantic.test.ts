@@ -56,6 +56,47 @@ describe('semantic architecture rules', () => {
     expect(result.violations[0]?.message).toContain('loose equality')
   })
 
+  test('traces imported calls through aliases, namespaces, and require bindings', async () => {
+    const archer = createArcher({ root: fixtureRoot })
+    archer
+      .expect('src/imported-calls.ts')
+      .not.toUseImportedSymbols('react', 'useEffect', 'useContext')
+      .and.not.toUseImportedSymbols('vue', 'inject')
+      .and.not.toUseImportedSymbols('svelte', 'getContext')
+
+    const result = await archer.check()
+
+    expect(result.violations).toHaveLength(6)
+    expect(result.violations).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          message: expect.stringContaining("runEffect()' imported as 'useEffect'"),
+        }),
+        expect.objectContaining({
+          message: expect.stringContaining("React.useEffect()' imported as 'useEffect'"),
+        }),
+        expect.objectContaining({
+          message: expect.stringContaining("readInjection()' imported as 'inject'"),
+        }),
+        expect.objectContaining({
+          message: expect.stringContaining("getContext()' imported as 'getContext'"),
+        }),
+      ]),
+    )
+  })
+
+  test('requires selected code to call an imported symbol', async () => {
+    const archer = createArcher({ root: fixtureRoot })
+    archer.expect('src/imported-calls.ts').toUseImportedSymbols('vue', 'provide')
+
+    const result = await archer.check()
+
+    expect(result.violations).toHaveLength(1)
+    expect(result.violations[0]?.message).toContain(
+      "Does not call 'provide()' imported from 'vue'.",
+    )
+  })
+
   test('supports custom async rules with stable metadata and warning severity', async () => {
     const archer = createArcher({ root: fixtureRoot })
     archer

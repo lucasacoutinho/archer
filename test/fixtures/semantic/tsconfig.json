@@ -1,8 +1,14 @@
 {
   "compilerOptions": {
+    "baseUrl": ".",
     "experimentalDecorators": true,
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
+    "paths": {
+      "react": ["stubs/react.ts"],
+      "svelte": ["stubs/svelte.ts"],
+      "vue": ["stubs/vue.ts"]
+    },
     "target": "ES2022"
   },
   "include": ["src/**/*.ts"]

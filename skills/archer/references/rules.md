@@ -72,6 +72,7 @@ archer.expect('src/**').toBeFreeOfFolderCycles(2)
 - Members: `toHaveReadonlyProperties`, `toHaveMethods`, `toHavePublicMethods`, `toHaveProtectedMethods`, `toHavePrivateMethods`, `toOnlyHavePublicMethods`
 - Modules: `toOnlyExport`, `toHaveResolvableDependencies`, `toBePublicApi`
 - Source: `toUseStrictEquality`, `toUseGlobals`, `toHavePrefix`, `toHaveSuffix`, `toHaveLineCountLessThan`
+- Imported calls: `toUseImportedSymbols('react', 'useEffect')`; aliases and namespace calls resolve to the original module export
 
 Negate supported rules with `.not`. Remove selected files with `.ignoring(...)`. Attach `.as(id)`, `.because(reason)`, and `.withSeverity('warning' | 'info' | 'error')` after a rule.
 

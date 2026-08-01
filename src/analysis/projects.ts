@@ -310,7 +310,7 @@ export async function createDependencyResolver(
     }
     const withoutNode = specifier.startsWith('node:') ? specifier.slice(5) : specifier
     const builtinRoot = withoutNode.split('/')[0]
-    if (builtinRoot !== undefined && builtins.has(builtinRoot)) {
+    if (specifier.startsWith('node:') || (builtinRoot !== undefined && builtins.has(builtinRoot))) {
       return {
         external: true,
         resolution: 'node',

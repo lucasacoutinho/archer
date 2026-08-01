@@ -9,6 +9,7 @@ import {
   evaluateExportRule,
   evaluateGlobalUseRule,
   evaluateHeritageRule,
+  evaluateImportedSymbolUseRule,
   evaluateLineCountRule,
   evaluateMethodRule,
   evaluateNameRule,
@@ -58,6 +59,8 @@ export async function evaluateRule(
       return evaluateStrictEqualityRule(rule, subjects)
     case 'use-globals':
       return evaluateGlobalUseRule(rule, subjects)
+    case 'use-imported-symbols':
+      return evaluateImportedSymbolUseRule(rule, subjects)
     case 'have-methods':
     case 'have-visible-methods':
     case 'only-public-methods':
