@@ -26,7 +26,7 @@
     "url": "git+ssh://git@github.com/usescherie/archer.git"
   },
   "bin": {
-    "archer": "./dist/cli.js"
+    "archer": "dist/cli.js"
   },
   "files": [
     "dist",
@@ -155,7 +155,7 @@
   },
   "publishConfig": {
     "access": "restricted",
-    "provenance": true
+    "registry": "https://npm.pkg.github.com"
   },
   "scripts": {
     "build": "tsup",
