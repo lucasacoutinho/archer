@@ -1,6 +1,16 @@
 # Changelog
 
-## 0.2.0 - Unreleased
+## 0.2.1 - 2026-10-24
+
+### Fixed
+
+- Moved `typescript` from `peerDependencies` to `dependencies` (`^5.9.0`).
+  Archer uses the TypeScript compiler API to parse imports, and TypeScript 7
+  ships no JavaScript API, so projects on TypeScript 7 could not install or load
+  Archer. Archer now brings its own TypeScript, and the project no longer needs
+  to install it.
+
+## 0.2.0 - 2026-10-24
 
 ### Breaking changes
 

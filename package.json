@@ -1,6 +1,6 @@
 {
   "name": "@lucasacoutinho/archer",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Architecture tests for TypeScript and JavaScript projects",
   "keywords": [
     "architecture",
@@ -183,7 +183,8 @@
     "commander": "^14.0.3",
     "jiti": "^2.7.0",
     "picomatch": "^4.0.3",
-    "tinyglobby": "^0.2.15"
+    "tinyglobby": "^0.2.15",
+    "typescript": "^5.9.0"
   },
   "devDependencies": {
     "@arethetypeswrong/cli": "^0.18.2",
@@ -201,7 +202,6 @@
   },
   "peerDependencies": {
     "@jest/globals": ">=29.0.0 <31.0.0",
-    "typescript": ">=5.7.0 <7.0.0",
     "vitest": ">=3.0.0 <5.0.0"
   },
   "peerDependenciesMeta": {

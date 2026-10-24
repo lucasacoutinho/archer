@@ -16,7 +16,7 @@ Use Archer to make architectural constraints executable. Prefer rules that descr
 
 ## Set up Archer
 
-Install `@lucasacoutinho/archer` and `typescript` as development dependencies with the repository's package manager. Prefer the CLI for a runner-independent check:
+Install `@lucasacoutinho/archer` as a development dependency with the repository's package manager. Prefer the CLI for a runner-independent check:
 
 ```ts
 import { defineConfig } from '@lucasacoutinho/archer'

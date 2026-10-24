@@ -10,10 +10,11 @@ but models files, packages, imports, exports, and TypeScript declarations.
 ## Install
 
 ```sh
-npm install --save-dev @lucasacoutinho/archer typescript
+npm install --save-dev @lucasacoutinho/archer
 ```
 
-Archer supports Node.js 20 and newer and TypeScript 5.7 through 6.x. The core
+Archer supports Node.js 20 and newer. It parses sources with its own bundled
+TypeScript, so the project's TypeScript version does not matter. The core
 package has no test-runner dependency.
 
 ## Start with the CLI
