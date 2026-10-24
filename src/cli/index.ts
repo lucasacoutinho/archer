@@ -137,7 +137,7 @@ async function init(cwd: string): Promise<number> {
   if (existsSync(fileName)) {
     throw new Error(`Refusing to overwrite ${fileName}.`)
   }
-  const template = `import { defineConfig } from '@usescherie/archer'\n\nexport default defineConfig({\n  rules(archer) {\n    archer.expect('src/**').toBeFreeOfCycles()\n  },\n})\n`
+  const template = `import { defineConfig } from '@lucasacoutinho/archer'\n\nexport default defineConfig({\n  rules(archer) {\n    archer.expect('src/**').toBeFreeOfCycles()\n  },\n})\n`
   await writeFile(fileName, template, 'utf8')
   process.stdout.write(`Created ${fileName}.\n`)
   return 0

@@ -10,7 +10,7 @@ but models files, packages, imports, exports, and TypeScript declarations.
 ## Install
 
 ```sh
-npm install --save-dev @usescherie/archer typescript
+npm install --save-dev @lucasacoutinho/archer typescript
 ```
 
 Archer supports Node.js 20 and newer and TypeScript 5.7 through 6.x. The core
@@ -21,7 +21,7 @@ package has no test-runner dependency.
 Create `archer.config.ts`:
 
 ```ts
-import { defineConfig } from '@usescherie/archer'
+import { defineConfig } from '@lucasacoutinho/archer'
 
 export default defineConfig({
   include: ['src/**/*.ts', 'packages/*/src/**/*.ts'],
@@ -55,7 +55,7 @@ Each adapter registers a test immediately and returns the same rule builder.
 
 ```ts
 // test/architecture.test.ts
-import { arch } from '@usescherie/archer/vitest'
+import { arch } from '@lucasacoutinho/archer/vitest'
 
 arch('the domain stays independent')
   .expect('src/domain/**')
@@ -66,9 +66,9 @@ arch('the domain stays independent')
 The other entry points are:
 
 ```ts
-import { arch } from '@usescherie/archer/jest'
-import { arch } from '@usescherie/archer/bun'
-import { arch } from '@usescherie/archer/node'
+import { arch } from '@lucasacoutinho/archer/jest'
+import { arch } from '@lucasacoutinho/archer/bun'
+import { arch } from '@lucasacoutinho/archer/node'
 ```
 
 Jest and Bun accept `timeout` as an Archer adapter option. The Node adapter
@@ -81,7 +81,7 @@ Vitest can run Archer once, before it starts collecting tests. The plugin loads
 
 ```ts
 // vitest.config.ts
-import { archer } from '@usescherie/archer/vitest'
+import { archer } from '@lucasacoutinho/archer/vitest'
 import { defineConfig } from 'vitest/config'
 
 export default defineConfig({
@@ -108,7 +108,7 @@ import { defineConfig } from 'vitest/config'
 
 export default defineConfig({
   test: {
-    setupFiles: ['@usescherie/archer/vitest/plugin'],
+    setupFiles: ['@lucasacoutinho/archer/vitest/plugin'],
   },
 })
 ```
@@ -118,7 +118,7 @@ For Jest, add it to `setupFilesAfterEnv`:
 ```ts
 // jest.config.ts
 export default {
-  setupFilesAfterEnv: ['@usescherie/archer/jest/plugin'],
+  setupFilesAfterEnv: ['@lucasacoutinho/archer/jest/plugin'],
 }
 ```
 
@@ -126,13 +126,13 @@ For Bun, preload it from `bunfig.toml`:
 
 ```toml
 [test]
-preload = ["@usescherie/archer/bun/plugin"]
+preload = ["@lucasacoutinho/archer/bun/plugin"]
 ```
 
 Then create a normal test and await the asynchronous matcher:
 
 ```ts
-import { createArcher } from '@usescherie/archer'
+import { createArcher } from '@lucasacoutinho/archer'
 
 test('the architecture is respected', async () => {
   const archer = createArcher()
@@ -389,7 +389,7 @@ warning-level rules affect the CLI exit code.
 The core API exposes the same data for integrations:
 
 ```ts
-import { ArchitectureError, createArcher } from '@usescherie/archer'
+import { ArchitectureError, createArcher } from '@lucasacoutinho/archer'
 
 const archer = createArcher({ root: process.cwd() })
 archer.expect('src/**').toBeFreeOfCycles()
@@ -407,7 +407,7 @@ package, so it is not tied to one developer's local agent configuration.
 Install it into any supported coding agent with the Skills CLI:
 
 ```sh
-npx skills add usescherie/archer --skill archer
+npx skills add lucasacoutinho/archer --skill archer
 ```
 
 Agents can then use `$archer` to set up rules, diagnose findings, and fix source
@@ -436,6 +436,24 @@ npm run test:tia
 npm run test:tia:verify
 ```
 
-The scripts prefer an installed `@usescherie/tiacore` package and otherwise
+The scripts prefer an installed `@lucasacoutinho/tiacore` package and otherwise
 use `../tiacore`. Set `TIACORE_VITEST_ENTRY` or `TIACORE_CLI` for a checkout in
 another location.
+
+## Releasing
+
+Releases publish to the public npm registry from the `Publish package` workflow
+(`.github/workflows/publish.yml`) with npm trusted publishing, so no npm token is
+stored in the repository and npm attaches provenance automatically. npm can only
+attach a trusted publisher to a package that already exists, so the first
+version is published manually by a maintainer with two-factor authentication.
+After that, link the workflow once:
+
+```sh
+npm trust github @lucasacoutinho/archer --file publish.yml --repo lucasacoutinho/archer --allow-publish
+```
+
+## License
+
+Archer is licensed under the [Apache License, Version 2.0](LICENSE). See
+[NOTICE](NOTICE) for attribution.

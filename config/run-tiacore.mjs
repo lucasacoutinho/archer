@@ -5,14 +5,14 @@ import path from 'node:path'
 const configured = process.env.TIACORE_CLI?.trim()
 const candidates = [
   ...(configured === undefined || configured === '' ? [] : [configured]),
-  path.resolve('node_modules/@usescherie/tiacore/dist/entries/cli.js'),
+  path.resolve('node_modules/@lucasacoutinho/tiacore/dist/entries/cli.js'),
   path.resolve('..', 'tiacore', 'dist', 'entries', 'cli.js'),
 ]
 const cli = candidates.find((candidate) => existsSync(candidate))
 
 if (cli === undefined) {
   throw new Error(
-    'tiacore is unavailable. Install @usescherie/tiacore, set TIACORE_CLI, or build the adjacent ../tiacore checkout.',
+    'tiacore is unavailable. Install @lucasacoutinho/tiacore, set TIACORE_CLI, or build the adjacent ../tiacore checkout.',
   )
 }
 

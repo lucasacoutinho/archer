@@ -3,7 +3,7 @@ import path from 'node:path'
 import { pathToFileURL } from 'node:url'
 
 export async function loadTiaPlugin() {
-  const packageEntry = '@usescherie/tiacore/vitest'
+  const packageEntry = '@lucasacoutinho/tiacore/vitest'
   try {
     return await import(packageEntry)
   } catch (error) {
@@ -25,7 +25,7 @@ export async function loadTiaPlugin() {
   const entry = candidates.find((candidate) => existsSync(candidate))
   if (entry === undefined) {
     throw new Error(
-      'tiacore is unavailable. Install @usescherie/tiacore, set TIACORE_VITEST_ENTRY, or build the adjacent ../tiacore checkout.',
+      'tiacore is unavailable. Install @lucasacoutinho/tiacore, set TIACORE_VITEST_ENTRY, or build the adjacent ../tiacore checkout.',
     )
   }
   return import(pathToFileURL(entry).href)

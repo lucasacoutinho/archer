@@ -1,6 +1,6 @@
 {
-  "name": "@usescherie/archer",
-  "version": "0.1.0",
+  "name": "@lucasacoutinho/archer",
+  "version": "0.2.0",
   "description": "Architecture tests for TypeScript and JavaScript projects",
   "keywords": [
     "architecture",
@@ -15,15 +15,15 @@
     "typescript",
     "vitest"
   ],
-  "homepage": "https://github.com/usescherie/archer#readme",
+  "homepage": "https://github.com/lucasacoutinho/archer#readme",
   "bugs": {
-    "url": "https://github.com/usescherie/archer/issues"
+    "url": "https://github.com/lucasacoutinho/archer/issues"
   },
-  "license": "UNLICENSED",
+  "license": "Apache-2.0",
   "author": "Lucas Coutinho",
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@github.com/usescherie/archer.git"
+    "url": "git+https://github.com/lucasacoutinho/archer.git"
   },
   "bin": {
     "archer": "dist/cli.js"
@@ -32,7 +32,8 @@
     "dist",
     "skills",
     "README.md",
-    "LICENSE"
+    "LICENSE",
+    "NOTICE"
   ],
   "type": "module",
   "sideEffects": [
@@ -154,8 +155,7 @@
     }
   },
   "publishConfig": {
-    "access": "restricted",
-    "registry": "https://npm.pkg.github.com"
+    "access": "public"
   },
   "scripts": {
     "build": "tsup",

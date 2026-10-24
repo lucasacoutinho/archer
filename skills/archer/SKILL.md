@@ -16,10 +16,10 @@ Use Archer to make architectural constraints executable. Prefer rules that descr
 
 ## Set up Archer
 
-Install `@usescherie/archer` and `typescript` as development dependencies with the repository's package manager. Prefer the CLI for a runner-independent check:
+Install `@lucasacoutinho/archer` and `typescript` as development dependencies with the repository's package manager. Prefer the CLI for a runner-independent check:
 
 ```ts
-import { defineConfig } from '@usescherie/archer'
+import { defineConfig } from '@lucasacoutinho/archer'
 
 export default defineConfig({
   rules(archer) {
@@ -39,14 +39,14 @@ Run the locally installed binary. With npm, use `npx --no-install archer check`;
 Use `arch()` when the check should be registered as a test:
 
 ```ts
-import { arch } from '@usescherie/archer/vitest'
+import { arch } from '@lucasacoutinho/archer/vitest'
 
 arch('domain boundaries').expect('src/domain/**').not.toDependOn('src/infrastructure/**')
 ```
 
 Replace `vitest` with `jest`, `bun`, or `node` for another adapter.
 
-Use the matcher plugin when a project prefers `expect` assertions. Add `@usescherie/archer/vitest/plugin` to Vitest `setupFiles`, `@usescherie/archer/jest/plugin` to Jest `setupFilesAfterEnv`, or `@usescherie/archer/bun/plugin` to Bun's test `preload`. Then await `expect(archer).toRespectArchitecture()` in a dedicated architecture test.
+Use the matcher plugin when a project prefers `expect` assertions. Add `@lucasacoutinho/archer/vitest/plugin` to Vitest `setupFiles`, `@lucasacoutinho/archer/jest/plugin` to Jest `setupFilesAfterEnv`, or `@lucasacoutinho/archer/bun/plugin` to Bun's test `preload`. Then await `expect(archer).toRespectArchitecture()` in a dedicated architecture test.
 
 ## Write rules
 

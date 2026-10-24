@@ -5,7 +5,7 @@ on:
 
 permissions:
   contents: read
-  packages: write
+  id-token: write
 
 jobs:
   publish:
@@ -17,13 +17,11 @@ jobs:
         with:
           node-version: 24
           cache: npm
-          registry-url: https://npm.pkg.github.com
-          scope: '@usescherie'
+          registry-url: https://registry.npmjs.org
+      - run: npm install --global npm@^11.15.0
       - uses: oven-sh/setup-bun@v2
         with:
           bun-version: latest
       - run: npm ci
       - run: npm run release:check
-      - run: npm publish --access restricted
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - run: npm publish
