@@ -1,0 +1,9 @@
+name = "archer"
+defaultTargets = ["Archer"]
+
+[[lean_lib]]
+name = "Archer"
+
+[[lean_exe]]
+name = "archer-oracle"
+root = "Oracle"
