@@ -6,7 +6,7 @@ const executable = fileURLToPath(new URL("../../lean/.lake/build/bin/archer-orac
 
 export type Request = { readonly op: string } & Record<string, unknown>
 
-/** Runs a batch through the Lean oracle (docs/contracts/oracle.md). */
+/** Runs a batch through the Lean oracle (docs/verification.md). */
 export const askOracle = (requests: ReadonlyArray<Request>): Array<unknown> => {
   if (!existsSync(executable)) {
     throw new Error(`Lean oracle not built at ${executable}; run \`cd lean && lake build archer-oracle\``)

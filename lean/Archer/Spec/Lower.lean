@@ -6,7 +6,7 @@ import Archer.Spec.Check
 
 Lowering resolves layer references, turns the layer tables into
 dependency rules, and rejects invalid configurations. Contract prose:
-`docs/contracts/README.md`.
+`docs/verification.md`.
 -/
 
 namespace Archer.Spec

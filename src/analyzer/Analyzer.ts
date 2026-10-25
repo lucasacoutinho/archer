@@ -1,4 +1,4 @@
-/** The only part of Archer that talks to TypeScript. Contract: docs/contracts/analyzer.md. */
+/** The only part of Archer that talks to TypeScript. Contract: docs/architecture.md#analyzer. */
 import { Context, Effect, FileSystem, Layer, type Path } from "effect"
 import type { Graph } from "../core/model.ts"
 import { AnalyzerUnavailable, type AnalysisError, GraphFileInvalid, ProjectNotFound, ProjectParseFailed } from "./errors.ts"

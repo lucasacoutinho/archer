@@ -4,7 +4,7 @@ import Archer.Spec.Check
 # Reachability
 
 An executable breadth-first search that discharges `Spec.ReachSpec`.
-Contract: `docs/contracts/README.md` (R1-R3).
+Contract: `docs/verification.md` (R1-R3).
 
 ## Canonical output order
 

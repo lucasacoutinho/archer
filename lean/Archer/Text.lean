@@ -5,7 +5,7 @@ import Archer.Config
 
 The strings callers write in a configuration (`src/domain/**`, `npm:react`,
 `layer:app`) and the reasons a string is rejected. Contract:
-`docs/contracts/selector-text.md`; obligations in `Archer.Spec.Text`.
+`docs/verification.md`; obligations in `Archer.Spec.Text`.
 -/
 
 namespace Archer

@@ -6,7 +6,7 @@ import Archer.Rule
 Each structure is a contract over an implementation that this file does not
 define. An obligation is discharged only by a theorem `ReachSpec reach` or
 `CheckSpec check` about the implementation that production ports. Contract
-prose: `docs/contracts/README.md`.
+prose: `docs/verification.md`.
 -/
 
 namespace Archer.Spec

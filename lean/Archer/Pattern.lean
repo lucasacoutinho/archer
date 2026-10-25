@@ -4,7 +4,7 @@
 One pattern language serves both glob levels. Segment patterns run over
 characters, where a literal or `?` is `sat` and `*` is `many`. Path
 patterns run over segments, where a segment pattern is `sat` and `**` is
-`many`. Contract: `docs/contracts/pattern.md`.
+`many`. Contract: `docs/verification.md`.
 -/
 
 namespace Archer.Pattern

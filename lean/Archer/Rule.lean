@@ -3,7 +3,7 @@ import Archer.Model
 /-!
 # Rules, violations, and evidence
 
-A rule is data. `docs/contracts/README.md` states what each assertion
+A rule is data. `docs/verification.md` states what each assertion
 means; `Archer.Spec` states it as propositions.
 -/
 
