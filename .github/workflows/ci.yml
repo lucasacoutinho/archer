@@ -9,63 +9,93 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
-  node:
-    name: Node ${{ matrix.node }} on ${{ matrix.os }}
-    runs-on: ${{ matrix.os }}
+  # The full gate: `npm run check` builds the Lean library and the
+  # `archer-oracle` executable first, because test/differential spawns it.
+  check:
+    name: Check (Node ${{ matrix.node }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
     strategy:
       fail-fast: false
       matrix:
         node:
-          - 20
-          - 22
-          - 24
-        os:
-          - ubuntu-latest
-          - windows-latest
+          - 22.x
+          - 24.x
+          - 26.x
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
         with:
           node-version: ${{ matrix.node }}
           cache: npm
+      - name: Install elan
+        run: |
+          curl https://elan.lean-lang.org/elan-init.sh -sSf | sh -s -- -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Install the Lean toolchain pinned in lean/lean-toolchain
+        run: elan toolchain install "$(cat lean/lean-toolchain)"
+      # lake rebuilds from its own trace files, so restoring a stale
+      # .lake through restore-keys is safe and only saves time.
+      - name: Cache Lean build
+        uses: actions/cache@v6
+        with:
+          path: lean/.lake
+          key: lake-${{ runner.os }}-${{ hashFiles('lean/lean-toolchain') }}-${{ hashFiles('lean/lake-manifest.json', 'lean/**/*.lean') }}
+          restore-keys: |
+            lake-${{ runner.os }}-${{ hashFiles('lean/lean-toolchain') }}-
+      # `npm ci` must run lifecycle scripts: `prepare` patches the native tsc.
       - run: npm ci
-      - run: npm run fmt:check
-      - run: npm run lint
-      - run: npm run typecheck
-      - run: npm test
+      - run: npm run check
+
+  package:
+    name: Package
+    needs: check
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24.x
+          cache: npm
+      - run: npm ci
+      # dist/ is gitignored, so the tarball is empty of entry points until built.
       - run: npm run build
-      - run: npm run test:jest
-      - run: npm run test:node
-      - run: npm run test:cli
-      - run: npm run test:dogfood
+      - name: Check tarball contents
+        run: npm pack --dry-run --json | node .github/scripts/check-pack.mjs
 
   bun:
     name: Bun
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
         with:
-          node-version: 24
+          node-version: 24.x
           cache: npm
-      - uses: oven-sh/setup-bun@v2
-        with:
-          bun-version: latest
+      - uses: oven-sh/setup-bun@v2.2.0
       - run: npm ci
-      - run: npm run build
-      - run: npm run test:bun
+      - run: npm run smoke:bun
 
-  package:
-    name: Package
-    runs-on: ubuntu-latest
+  # Windows covers only what does not need Lean: Lean/elan on Windows is out of
+  # scope for CI. test/differential (which spawns the Lean oracle) and the
+  # `npm run check` pipeline therefore run on Linux only.
+  windows:
+    name: Windows (typecheck + Lean-free tests)
+    runs-on: windows-latest
+    timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
         with:
-          node-version: 24
+          node-version: 24.x
           cache: npm
       - run: npm ci
-      - run: npm run check:package
-      - run: npm audit --omit=dev
-      - run: npm pack --dry-run
+      - run: npm run typecheck
+      - run: npx vitest run test/core test/report test/shell

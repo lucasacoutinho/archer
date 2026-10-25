@@ -1,8 +1,13 @@
 name: Publish package
 
 on:
+  release:
+    types:
+      - published
   workflow_dispatch:
 
+# `id-token: write` is what npm trusted publishing (OIDC) and provenance use;
+# there is no long-lived NPM_TOKEN. Nothing else is granted beyond reading.
 permissions:
   contents: read
   id-token: write
@@ -11,17 +16,31 @@ jobs:
   publish:
     runs-on: ubuntu-latest
     environment: npm
+    timeout-minutes: 45
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
         with:
-          node-version: 24
-          cache: npm
+          persist-credentials: false
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24.x
           registry-url: https://registry.npmjs.org
+          # No dependency cache: this job can mint an OIDC token, so it installs
+          # from the lockfile instead of restoring anything another run could
+          # have written. The Lean build is likewise from scratch.
+          package-manager-cache: false
+      # Trusted publishing needs a recent npm.
       - run: npm install --global npm@^11.15.0
-      - uses: oven-sh/setup-bun@v2
-        with:
-          bun-version: latest
+      - name: Install elan
+        run: |
+          curl https://elan.lean-lang.org/elan-init.sh -sSf | sh -s -- -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Install the Lean toolchain pinned in lean/lean-toolchain
+        run: elan toolchain install "$(cat lean/lean-toolchain)"
+      # `npm ci` must run lifecycle scripts: `prepare` patches the native tsc.
       - run: npm ci
-      - run: npm run release:check
-      - run: npm publish
+      # lean -> typecheck -> test -> build -> dogfood; leaves dist/ ready to pack.
+      - run: npm run check
+      - name: Check tarball contents
+        run: npm pack --dry-run --json | node .github/scripts/check-pack.mjs
+      - run: npm publish --provenance --access public

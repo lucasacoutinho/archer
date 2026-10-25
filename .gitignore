@@ -3,3 +3,6 @@ node_modules/
 coverage/
 .tia/
 *.tgz
+
+# Previous implementation kept for reference during the redesign
+.legacy/
