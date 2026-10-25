@@ -6,7 +6,7 @@ import type { AnalyzerShape, Workspace } from "./workspace.ts"
 import { type AnalysisError, AnalyzerUnavailable, ProjectNotFound, ProjectParseFailed } from "./errors.ts"
 import { compareCodeUnits, isDeclarationFileName, isJsonFileName, NODE_MODULES, splitPath } from "./paths.ts"
 import { type RawDependency, type RawSource, readSource } from "./source.ts"
-import { abandon, serverExit } from "./server-exit.ts"
+import { abandon, muteFailedWrites, serverExit } from "./server-exit.ts"
 import { builtinTarget, fileCandidates, installedPackage, isInstalled, packageTarget, specifierPackage } from "./targets.ts"
 
 const unavailable = (cause: unknown): AnalyzerUnavailable => new AnalyzerUnavailable({ cause })
@@ -68,6 +68,7 @@ const makeServer: Effect.Effect<Server, never, Scope.Scope> = Effect.gen(functio
     yield* attemptPromise(() => api.updateSnapshot().then((snapshot) => snapshot.dispose())).pipe(
       Effect.tapError(() => Scope.close(scope, Exit.void)),
     )
+    muteFailedWrites(api)
     const exited = serverExit(api)
     void exited.then(() => {
       exitedServer = true

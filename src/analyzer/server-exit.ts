@@ -45,3 +45,27 @@ export const abandon = (api: API): void => {
   child?.stdin?.destroy()
   child?.stdout?.destroy()
 }
+
+/**
+ * vscode-jsonrpc, bundled in TypeScript, runs `sendRequest` in an async
+ * Promise executor that rethrows a failed write after rejecting the request.
+ * The rethrow rejects a promise nobody holds, so a write to a server that has
+ * just died becomes an unhandled rejection. A failed write means the server is
+ * gone, and `serverExit` already fails the request, so the write's error is
+ * not passed back to the library.
+ */
+export const muteFailedWrites = (api: API): void => {
+  const stdin = serverProcess(api)?.stdin
+  if (stdin === undefined || stdin === null) return
+  const write: unknown = Reflect.get(stdin, "write")
+  if (typeof write !== "function") return
+  Reflect.set(stdin, "write", (...args: Array<unknown>): unknown => {
+    const last = args.at(-1)
+    if (typeof last === "function") {
+      args[args.length - 1] = (error: unknown): void => {
+        if (error === undefined || error === null) Reflect.apply(last, undefined, [])
+      }
+    }
+    return Reflect.apply(write, stdin, args)
+  })
+}

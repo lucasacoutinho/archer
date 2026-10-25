@@ -80,10 +80,16 @@ What the analyzer guarantees:
 - **Failure is explicit.** An analysis returns a whole graph or an error,
   never a partial graph. If the server dies, the analysis fails with
   `AnalyzerUnavailable` and the next one starts a new server.
-  `src/analyzer/server-exit.ts` detects the exit through a private field of
-  TypeScript's client, because the client never rejects requests to a dead
-  server. That is held in place by the exact version pin and by
-  `test/analyzer/server-exit.test.ts`.
+  `src/analyzer/server-exit.ts` works around two problems in TypeScript's
+  client:
+  - The client never rejects requests to a dead server, so Archer watches
+    the server process through a private field of the client.
+  - The bundled `vscode-jsonrpc` rethrows a failed write inside an async
+    Promise executor, which leaves an unhandled rejection, so Archer does
+    not report write errors on the server's stdin back to the library.
+
+  The exact version pin and `test/analyzer/server-exit.test.ts` hold both
+  workarounds in place.
 
 `test/analyzer/contract.ts` checks these guarantees against every analyzer
 adapter: `typescript`, `memory`, and `replay`.

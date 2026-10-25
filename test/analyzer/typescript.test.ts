@@ -1,16 +1,3 @@
-import { createHook } from "node:async_hooks"
-
-const creation = new WeakMap<object, string>()
-Error.stackTraceLimit = 60
-createHook({
-  init(_id, type, _trigger, resource) {
-    if (type === "PROMISE") creation.set(resource as object, new Error("created at").stack ?? "")
-  },
-}).enable()
-process.on("unhandledRejection", (_reason, promise) => {
-  console.log(`DEBUG-UNHANDLED creation stack:\n${creation.get(promise) ?? "unknown"}`)
-})
-
 import { NodeServices } from "@effect/platform-node"
 import { expect, layer } from "@effect/vitest"
 import { Effect, FileSystem, Layer, Path } from "effect"
