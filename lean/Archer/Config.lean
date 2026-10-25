@@ -5,7 +5,7 @@ import Archer.Rule
 
 What a caller writes, before lowering. Selectors can name layers; layer
 tables say which layers may depend on which. Lowering turns a configuration
-into a policy without layers. Contract: `docs/contracts/README.md`.
+into a policy without layers. Contract: `docs/verification.md`.
 -/
 
 namespace Archer

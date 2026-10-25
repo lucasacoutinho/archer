@@ -6,7 +6,7 @@ import Archer.Spec.Baseline
 /-!
 # JSON codecs of the oracle protocol
 
-Shapes follow the table in `docs/contracts/oracle.md`. Recursive decoders take
+Shapes follow the table in `docs/verification.md`. Recursive decoders take
 a fuel bound on nesting depth.
 -/
 

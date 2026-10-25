@@ -1,7 +1,7 @@
 /**
  * Port of `Archer.Pattern.accepts` (lean/Archer/Pattern.lean), specialized to
  * strings: code points for segments, segments for paths. Correspondence is
- * obligation T1 in docs/contracts/README.md.
+ * obligation T1 in docs/verification.md.
  */
 
 import { Match } from "effect"

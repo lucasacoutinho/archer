@@ -4,7 +4,7 @@ import Archer.Pattern
 # Graph model
 
 The data that the analyzer produces and that every rule reads. Terms follow
-`docs/GLOSSARY.md`. Contract: `docs/contracts/README.md`.
+Contract: `docs/verification.md`.
 -/
 
 namespace Archer

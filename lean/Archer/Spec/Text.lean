@@ -3,7 +3,7 @@ import Archer.Text
 /-!
 # Specification of selector text
 
-Contract prose: `docs/contracts/selector-text.md`.
+Contract prose: `docs/verification.md`.
 -/
 
 namespace Archer.Spec

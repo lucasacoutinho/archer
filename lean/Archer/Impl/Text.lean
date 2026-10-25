@@ -3,7 +3,7 @@ import Archer.Spec.Text
 /-!
 # Selector text
 
-`parse` and `print` for the selector strings of `docs/contracts/selector-text.md`.
+`parse` and `print` for the selector strings of `docs/verification.md`.
 Contract: `Archer.Spec.TextSpec`. Everything works on `List Char`; `parse` and `print` only
 convert at the boundary.
 

@@ -5,7 +5,7 @@ import Archer.Rule
 
 A fingerprint identifies a violation across runs. It leaves out source
 locations and witness edges, so moving an import or finding another
-shortest path does not change it. Contract: `docs/contracts/README.md`.
+shortest path does not change it. Contract: `docs/verification.md`.
 -/
 
 namespace Archer

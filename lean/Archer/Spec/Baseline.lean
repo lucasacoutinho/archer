@@ -3,7 +3,7 @@ import Archer.Fingerprint
 /-!
 # Specification of fingerprint encoding, baselines, and the verdict
 
-Contract prose: `docs/contracts/README.md`.
+Contract prose: `docs/verification.md`.
 -/
 
 namespace Archer.Spec

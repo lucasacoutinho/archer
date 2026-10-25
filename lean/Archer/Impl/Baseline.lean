@@ -4,7 +4,7 @@ import Archer.Spec.Baseline
 # Fingerprint encoding and baselines
 
 Implements `Spec.EncodeSpec` (F1, F2) and `Spec.BaselineSpec` (B1 to B5).
-Contract: `docs/contracts/README.md`.
+Contract: `docs/verification.md`.
 
 ## Format
 

@@ -3,7 +3,7 @@ import { spawn } from "node:child_process"
 import { readFileSync } from "node:fs"
 import { fileURLToPath } from "node:url"
 import { NodeRuntime, NodeServices } from "@effect/platform-node"
-import { Console, Duration, Effect, FileSystem, Option, Path, type PlatformError, Schema, Stream } from "effect"
+import { Console, Deferred, Duration, Effect, Fiber, FileSystem, Option, Path, type PlatformError, Schema, Semaphore, Stream } from "effect"
 import { Argument, CliError, Command, Flag } from "effect/cli"
 import { Analyzer } from "../analyzer/Analyzer.ts"
 import { formatGraphFile } from "../analyzer/graph-file.ts"
@@ -110,18 +110,29 @@ const watchChecks = (input: CheckInput): Effect.Effect<void, PlatformError.Platf
     const report = Option.isSome(input.output) ? path.resolve(input.output.value) : undefined
     const relevant = (directory: string, changed: string): boolean =>
       !ignored(changed) && path.resolve(directory, changed) !== report
+    const rootReady = yield* Deferred.make<void>()
+    const configReady = yield* Deferred.make<void>()
     const changes = fs
-      .watch(root, { recursive: true })
+      .watch(root, { recursive: true, onReady: () => Deferred.doneUnsafe(rootReady, Effect.void) })
       .pipe(Stream.filter((event) => relevant(root, event.path)))
     const configChanges =
       configFile === undefined
-        ? Stream.empty
-        : fs.watch(path.dirname(configFile)).pipe(Stream.filter((event) => relevant(path.dirname(configFile), event.path)))
-    yield* checkInChild(args)
-    yield* Stream.merge(changes, configChanges).pipe(
+        ? Stream.fromEffect(Deferred.succeed(configReady, undefined)).pipe(Stream.drain)
+        : fs
+            .watch(path.dirname(configFile), { onReady: () => Deferred.doneUnsafe(configReady, Effect.void) })
+            .pipe(Stream.filter((event) => relevant(path.dirname(configFile), event.path)))
+    const lock = yield* Semaphore.make(1)
+    const checkOnce = lock.withPermit(checkInChild(args))
+    const watching = yield* Stream.merge(changes, configChanges).pipe(
       Stream.debounce(Duration.millis(200)),
-      Stream.runForEach(() => checkInChild(args)),
+      Stream.runForEach(() => checkOnce),
+      Effect.forkChild,
     )
+    // Watch before the first check, so an edit made while it runs is not missed.
+    yield* Deferred.await(rootReady)
+    yield* Deferred.await(configReady)
+    yield* checkOnce
+    yield* Fiber.join(watching)
   })
 
 interface CheckInput {

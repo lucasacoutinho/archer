@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.3.0 - 2026-10-24
+## 0.3.0 - 2026-10-25
 
 Archer is rebuilt from scratch. The pure core is specified in Lean 4, with
 proofs for the glob matcher, reachability, the check, layer lowering,
@@ -108,7 +108,7 @@ breaking changes before you upgrade. The README documents it.
   and CLI. It still ships in the npm package.
 - Specification and verification: Lean 4 contracts and proofs under `lean/`, a
   Lean oracle, and differential tests that compare the TypeScript port with the
-  oracle on 400 seeded inputs. See `docs/contracts/README.md` for what is proved
+  oracle on 400 seeded inputs. See `docs/verification.md` for what is proved
   and what is evidence only.
 
 ## 0.2.1 - 2026-10-24

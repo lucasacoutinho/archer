@@ -1,4 +1,4 @@
-/** The TypeScript adapter of the Analyzer. Contract: docs/contracts/analyzer.md. */
+/** The TypeScript adapter of the Analyzer. Contract: docs/architecture.md#analyzer. */
 import { Effect, Exit, FileSystem, Match, Path, Ref, Scope, Semaphore } from "effect"
 import { API, DiagnosticCategory, type Project, type Snapshot } from "typescript/unstable/async"
 import type { FilePath, Graph, SourceFile, Target } from "../core/model.ts"
@@ -6,7 +6,7 @@ import type { AnalyzerShape, Workspace } from "./workspace.ts"
 import { type AnalysisError, AnalyzerUnavailable, ProjectNotFound, ProjectParseFailed } from "./errors.ts"
 import { compareCodeUnits, isDeclarationFileName, isJsonFileName, NODE_MODULES, splitPath } from "./paths.ts"
 import { type RawDependency, type RawSource, readSource } from "./source.ts"
-import { serverExit } from "./server-exit.ts"
+import { abandon, muteFailedWrites, serverExit } from "./server-exit.ts"
 import { builtinTarget, fileCandidates, installedPackage, isInstalled, packageTarget, specifierPackage } from "./targets.ts"
 
 const unavailable = (cause: unknown): AnalyzerUnavailable => new AnalyzerUnavailable({ cause })
@@ -59,20 +59,29 @@ const makeServer: Effect.Effect<Server, never, Scope.Scope> = Effect.gen(functio
 
   const start: Effect.Effect<Session, AnalyzerUnavailable> = Effect.gen(function* () {
     const scope = yield* Scope.fork(layerScope)
+    let exitedServer = false
     const api = yield* Effect.acquireRelease(
       attempt(() => new API()),
-      (started) => attemptPromise(() => started.close()).pipe(Effect.ignore),
+      (started) =>
+        exitedServer ? Effect.sync(() => abandon(started)) : attemptPromise(() => started.close()).pipe(Effect.ignore),
     ).pipe(Scope.provide(scope), Effect.tapError(() => Scope.close(scope, Exit.void)))
     yield* attemptPromise(() => api.updateSnapshot().then((snapshot) => snapshot.dispose())).pipe(
       Effect.tapError(() => Scope.close(scope, Exit.void)),
     )
+    muteFailedWrites(api)
     const exited = serverExit(api)
+    void exited.then(() => {
+      exitedServer = true
+    })
     const lost = (): Promise<never> =>
       exited.then((): never => {
         throw new Error("TypeScript server exited")
       })
+    /** A request to a server known to be dead fails without writing to it. */
     const request = <A>(evaluate: () => Promise<A>): Effect.Effect<A, AnalyzerUnavailable> =>
-      attemptPromise(() => Promise.race([evaluate(), lost()]))
+      exitedServer
+        ? Effect.fail(new AnalyzerUnavailable({ cause: new Error("TypeScript server exited") }))
+        : attemptPromise(() => Promise.race([evaluate(), lost()]))
     const remote: Remote = { api, request }
     const session: Session = { remote, scope }
     yield* Ref.set(current, session)
